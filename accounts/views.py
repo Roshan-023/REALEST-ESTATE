@@ -5,6 +5,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import permissions
 
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import *
+
 
 class SignUpView(APIView):
     permission_classes = (permissions.AllowAny, )
@@ -28,3 +31,7 @@ class SignUpView(APIView):
 
         else:
             return Response({'error': 'Passwords do not match'})
+
+
+class LoginView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
