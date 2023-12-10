@@ -36,11 +36,11 @@ class SearchView(APIView):
                 queryset = queryset.filter(home_type__iexact=value)
             elif field == 'bathrooms':
                 bathrooms = float(value.rstrip('+'))
-                queryset = queryset.filter(bathrooms__gte=bathrooms)
+                queryset = queryset.filter(bathrooms__lte=bathrooms)
             elif field == 'sqft':
                 sqft = self.convert_sqft(value)
                 if sqft is not None:
-                    queryset = queryset.filter(sqft__gte=sqft)
+                    queryset = queryset.filter(sqft__lte=sqft)
             elif field == 'days_listed':
                 days_passed = self.convert_days_listed(value)
                 if days_passed is not None:
