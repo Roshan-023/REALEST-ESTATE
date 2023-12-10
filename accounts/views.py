@@ -34,4 +34,5 @@ class SignUpView(APIView):
 
 
 class LoginView(TokenObtainPairView):
+    permission_classes = (permissions.AllowAny, )
     serializer_class = MyTokenObtainPairSerializer
