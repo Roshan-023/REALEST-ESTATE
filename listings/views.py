@@ -9,7 +9,7 @@ from datetime import datetime, timezone, timedelta
 import functools
 
 class ListingsView(ListAPIView):
-    queryset = Listing.objects.order_by('-list_date').filter(is_published=True)
+    queryset = Listing.objects.order_by('-list_date').filter(is_published=True, verified=True)
     permission_classes = (permissions.AllowAny, )
     serializer_class = ListingSerializer
     lookup_field = 'slug'

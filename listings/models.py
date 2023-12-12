@@ -15,6 +15,12 @@ class Listing(models.Model):
         TOWNHOUSE = 'Townhouse'
         APARTMENT = 'Apartment'
 
+    class FurnitureType(models.TextChoices):
+        FULLY_FURNISHED = 'Fully Furnished'
+        SEMI_FURNISHED = 'Semi Furnished'
+        UNFURNISHED = 'Unfurnished'
+
+
     realtor = models.ForeignKey(Realtor, on_delete=models.DO_NOTHING)
     slug = models.CharField(max_length=200, unique=True)
     title = models.CharField(max_length=150)
@@ -56,7 +62,10 @@ class Listing(models.Model):
 
     is_published = models.BooleanField(default=True)
     list_date = models.DateTimeField(default=now, blank=True)
+    verified = models.BooleanField(default=False)
 
+    furniture_type = models.CharField(max_length=50, choices=FurnitureType.choices, default=FurnitureType.UNFURNISHED)
 
     def __str__(self):
         return self.title
+
