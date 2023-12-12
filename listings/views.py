@@ -3,8 +3,10 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework import permissions
 from .models import Listing
+from django.db.models import Q, Sum, Case, When, IntegerField, F
 from .serializers import ListingSerializer, ListingDetailSerializer
 from datetime import datetime, timezone, timedelta
+import functools
 
 class ListingsView(ListAPIView):
     queryset = Listing.objects.order_by('-list_date').filter(is_published=True)
@@ -36,7 +38,7 @@ class SearchView(APIView):
                 queryset = queryset.filter(home_type__iexact=value)
             elif field == 'bathrooms':
                 bathrooms = float(value.rstrip('+'))
-                queryset = queryset.filter(bathrooms__lte=bathrooms)
+                queryset = queryset.filter(bathrooms__gte=bathrooms)
             elif field == 'sqft':
                 sqft = self.convert_sqft(value)
                 if sqft is not None:
@@ -45,33 +47,13 @@ class SearchView(APIView):
                 days_passed = self.convert_days_listed(value)
                 if days_passed is not None:
                     queryset = queryset.filter(list_date__gte=timezone.now() - timezone.timedelta(days=days_passed))
-            elif field == 'has_photos':
-                has_photos = int(value.rstrip('+'))
-                queryset = queryset.annotate(
-                    photo_count=(
-                        Q(photo_1__isnull=False) +
-                        Q(photo_2__isnull=False) +
-                        Q(photo_3__isnull=False) +
-                        Q(photo_4__isnull=False) +
-                        Q(photo_5__isnull=False) +
-                        Q(photo_6__isnull=False) +
-                        Q(photo_7__isnull=False) +
-                        Q(photo_8__isnull=False) +
-                        Q(photo_9__isnull=False) +
-                        Q(photo_10__isnull=False) +
-                        Q(photo_11__isnull=False) +
-                        Q(photo_12__isnull=False) +
-                        Q(photo_13__isnull=False) +
-                        Q(photo_14__isnull=False) +
-                        Q(photo_15__isnull=False) +
-                        Q(photo_16__isnull=False) +
-                        Q(photo_17__isnull=False) +
-                        Q(photo_18__isnull=False) +
-                        Q(photo_19__isnull=False) +
-                        Q(photo_20__isnull=False)
-                    )
-                )
-                queryset = queryset.filter(photo_count__gte=has_photos)
+
+
+
+
+
+
+
             elif field == 'open_house':
                 open_house = self.convert_open_house(value)
                 if open_house is not None:

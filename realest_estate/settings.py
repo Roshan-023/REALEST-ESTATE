@@ -98,21 +98,21 @@ WSGI_APPLICATION = 'realest_estate.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'realest_estate',
-#         'USER': 'postgres',
-#         'PASSWORD': 'roshan',
-#         'HOST': 'localhost'
-#     }
-# }
-
-
-DATABASE_URL = os.environ.get("DATABASE_URL")
-DATABASES ={
-    "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'realest_estate',
+        'USER': 'postgres',
+        'PASSWORD': 'roshan',
+        'HOST': 'localhost'
+    }
 }
+
+
+# DATABASE_URL = os.environ.get("DATABASE_URL")
+# DATABASES ={
+#     "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
+# }
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
