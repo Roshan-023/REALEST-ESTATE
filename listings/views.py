@@ -30,19 +30,21 @@ class SearchView(APIView):
             elif field == 'price':
                 price = self.convert_price_range(value)
                 if price is not None:
-                    queryset = queryset.filter(price__lte=price)
+                    queryset = queryset.filter(price__gte=price)
             elif field == 'bedrooms':
-                bedrooms = int(value.rstrip('+'))
-                queryset = queryset.filter(bedrooms__gte=bedrooms)
+                if value:
+                    bedrooms = int(value.rstrip('+'))
+                    queryset = queryset.filter(bedrooms__gte=bedrooms)
             elif field == 'home_type':
                 queryset = queryset.filter(home_type__iexact=value)
             elif field == 'bathrooms':
-                bathrooms = float(value.rstrip('+'))
-                queryset = queryset.filter(bathrooms__gte=bathrooms)
+                if value: 
+                    bathrooms = (value.rstrip('+'))
+                    queryset = queryset.filter(bathrooms__gte=bathrooms)
             elif field == 'sqft':
                 sqft = self.convert_sqft(value)
                 if sqft is not None:
-                    queryset = queryset.filter(sqft__lte=sqft)
+                    queryset = queryset.filter(sqft__gte=sqft)
             elif field == 'days_listed':
                 days_passed = self.convert_days_listed(value)
                 if days_passed is not None:
@@ -59,7 +61,8 @@ class SearchView(APIView):
                 if open_house is not None:
                     queryset = queryset.filter(open_house__iexact=open_house)
             elif field == 'keywords':
-                queryset = queryset.filter(desc__icontains=value)
+                if value:
+                    queryset = queryset.filter(desc__icontains=value)
 
         serializer = ListingSerializer(queryset, many=True)
         return Response(serializer.data)
