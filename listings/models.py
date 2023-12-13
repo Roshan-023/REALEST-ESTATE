@@ -1,7 +1,8 @@
 from django.db import models
 from django.utils.timezone import now
-from realtors.models import Realtor
+from django.core.validators import MinValueValidator
 
+from django.contrib.auth import get_user_model
 
 class Listing(models.Model):
 
@@ -20,8 +21,13 @@ class Listing(models.Model):
         SEMI_FURNISHED = 'Semi Furnished'
         UNFURNISHED = 'Unfurnished'
 
+    class TenantType(models.TextChoices):
+        SINGLE_MEN = 'Single men'
+        SINGLE_WOMEN = 'Single women'
+        COUPLES = 'Couples'
 
-    realtor = models.ForeignKey(Realtor, on_delete=models.DO_NOTHING)
+
+    Realtor = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True)
     slug = models.CharField(max_length=200, unique=True)
     title = models.CharField(max_length=150)
     address = models.CharField(max_length=150)
@@ -60,12 +66,24 @@ class Listing(models.Model):
     photo_19 = models.ImageField(upload_to='photos/%Y/%4/%d/', blank=True)
     photo_20 = models.ImageField(upload_to='photos/%Y/%4/%d/', blank=True)
 
-    is_published = models.BooleanField(default=True)
     list_date = models.DateTimeField(default=now, blank=True)
     verified = models.BooleanField(default=False)
+    property_age = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(limit_value=0)])
 
     furniture_type = models.CharField(max_length=50, choices=FurnitureType.choices, default=FurnitureType.UNFURNISHED)
+    tenant_type = models.CharField(null=True, blank=True, choices=TenantType.choices, default=None, max_length=50)
 
     def __str__(self):
         return self.title
 
+    @property
+    def should_show_tenant_type(self):
+        # Determine whether to show the tenant_type field based on sale_type
+        return self.sale_type == Listing.SaleType.FOR_RENT
+
+    def save(self, *args, **kwargs):
+
+        # Set tenant_type to None if the property is not listed for rent
+        if not self.should_show_tenant_type:
+            self.tenant_type = None
+        super().save(*args, **kwargs)

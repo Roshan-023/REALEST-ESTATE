@@ -9,6 +9,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import *
 
 
+
 class SignUpView(APIView):
     permission_classes = (permissions.AllowAny, )
 
@@ -36,3 +37,27 @@ class SignUpView(APIView):
 class LoginView(TokenObtainPairView):
     permission_classes = (permissions.AllowAny, )
     serializer_class = MyTokenObtainPairSerializer
+
+
+
+from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework import permissions
+from .models import UserAccount
+from .serializers import RealtorSerializer
+
+class RealtorListView(ListAPIView):
+    permission_classes = (permissions.AllowAny, )
+    queryset = UserAccount.objects.all()
+    serializer_class = RealtorSerializer
+    pagination_class = None
+
+
+class RealtorView(RetrieveAPIView):
+    queryset = UserAccount.objects.all()
+    serializer_class = RealtorSerializer
+
+class TopSellerView(ListAPIView):
+    permission_classes = (permissions.AllowAny, )
+    queryset = UserAccount.objects.filter(top_seller=True)
+    serializer_class = RealtorSerializer
+    pagination_class = None

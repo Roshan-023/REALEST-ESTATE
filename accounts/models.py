@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 
 class UserAccountManager(BaseUserManager):
@@ -25,8 +26,13 @@ class UserAccountManager(BaseUserManager):
 class UserAccount(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
+    photo = models.ImageField(upload_to='photos/%Y/%m/%d/')
+    phone = models.CharField(max_length=20, blank=True)
+    description = models.CharField(max_length=255, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    top_seller = models.BooleanField(default=False)
+    date_hired = models.DateTimeField(default=datetime.now, blank=True)
 
     objects = UserAccountManager()
 

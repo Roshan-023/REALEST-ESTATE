@@ -1,21 +1,21 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework import permissions
+from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView
+from rest_framework import permissions, status
 from .models import Listing
-from django.db.models import Q, Sum, Case, When, IntegerField, F
-from .serializers import ListingSerializer, ListingDetailSerializer
+from .serializers import ListingSerializer, ListingDetailSerializer, AddListingSerializer
 from datetime import datetime, timezone, timedelta
+from accounts.models import UserAccount
 import functools
 
 class ListingsView(ListAPIView):
-    queryset = Listing.objects.order_by('-list_date').filter(is_published=True, verified=True)
+    queryset = Listing.objects.order_by('-list_date').filter()
     permission_classes = (permissions.AllowAny, )
     serializer_class = ListingSerializer
     lookup_field = 'slug'
 
 class ListingView(RetrieveAPIView):
-    queryset = Listing.objects.order_by('-list_date').filter(is_published=True)
+    queryset = Listing.objects.order_by('-list_date').filter()
     serializer_class = ListingDetailSerializer
     lookup_field = 'slug'
 
@@ -23,6 +23,7 @@ class SearchView(APIView):
     def post(self, request, format=None):
         queryset = Listing.objects.order_by('-list_date').filter(is_published=True)
         data = self.request.data
+        match_any = data.get("match_any", False)
 
         for field, value in data.items():
             if field == 'sale_type':
@@ -50,11 +51,14 @@ class SearchView(APIView):
                 if days_passed is not None:
                     queryset = queryset.filter(list_date__gte=timezone.now() - timezone.timedelta(days=days_passed))
 
+            elif field == 'property_age':
+                if value:
+                    property_age = int(value.rstrip('-'))
+                    queryset = queryset.filter(property_age__lte=property_age)
 
-
-
-
-
+            elif field == 'furniture_type':
+                if value:
+                    queryset = queryset.filter(furniture_type__iexact=value)
 
             elif field == 'open_house':
                 open_house = self.convert_open_house(value)
@@ -63,6 +67,9 @@ class SearchView(APIView):
             elif field == 'keywords':
                 if value:
                     queryset = queryset.filter(desc__icontains=value)
+        if match_any:
+            # If match_any is True, return results that meet at least one condition
+            queryset = Listing.objects.filter(Q(pk__in=queryset.values_list('pk')))
 
         serializer = ListingSerializer(queryset, many=True)
         return Response(serializer.data)
@@ -96,3 +103,28 @@ class SearchView(APIView):
             return open_house_str.lower()
         else:
             return None
+
+
+class AddListingAPIView(CreateAPIView):
+    serializer_class = AddListingSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def perform_create(self, serializer):
+        # Check if the logged-in user is recognized as a Realtor
+        user = self.request.user
+
+        # Assuming your user model is 'UserAccount'
+        user_account = UserAccount.objects.get(email=user.email)
+
+        if user_account:
+            # If the user is recognized as a UserAccount, associate the UserAccount with the listing
+            serializer.save(Realtor=user_account)
+        else:
+            # If the user is not recognized as a UserAccount, proceed with the existing logic
+            serializer.save(user=user)
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        if response.status_code == status.HTTP_201_CREATED:
+            response.data['message'] = 'Listing added successfully!'
+        return response

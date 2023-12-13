@@ -2,6 +2,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import *
 
+from rest_framework import serializers
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -13,3 +15,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['email'] = self.user.email
 
         return data
+
+
+class RealtorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAccount
+        exclude = ['groups', 'user_permissions']
