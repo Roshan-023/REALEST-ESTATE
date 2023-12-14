@@ -5,14 +5,16 @@ from .models import *
 from rest_framework import serializers
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-   @classmethod
-   def get_token(cls, user):
-    token = super().get_token(user)
-    token['username'] = user.name
-    return token
+   def validate(self,attr):
+    data = super().validate(attr)
+    token = self.get_token(self.user)
+    data['user'] = str(self.user)
+    data['id'] = str(self.user.id)
+    return data
 
 
 class RealtorSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAccount
         exclude = ['groups', 'user_permissions']
+

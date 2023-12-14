@@ -44,7 +44,7 @@ class Listing(models.Model):
     home_type = models.CharField(max_length=50, choices=HomeType.choices, default=HomeType.HOUSE)
     sqft = models.IntegerField()
     open_house = models.BooleanField(default=False)
-    photo_main = models.ImageField(upload_to='photos/%Y/%m/%d/')
+    photo_main = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
     photo_1 = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
     photo_2 = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)
     photo_3 = models.ImageField(upload_to='photos/%Y/%m/%d/', blank=True)

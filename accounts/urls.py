@@ -4,7 +4,8 @@ from .views import RealtorListView, RealtorView, TopSellerView
 
 
 urlpatterns = [
-    path('login', LoginView.as_view(), name='token_obtain_pair'),
+    path('login', LoginView.as_view()),
+
     path('signup', SignUpView.as_view()),
     path('user-list', RealtorListView.as_view()),
     path('topseller', TopSellerView.as_view()),

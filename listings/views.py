@@ -6,6 +6,8 @@ from .models import Listing
 from .serializers import ListingSerializer, ListingDetailSerializer, AddListingSerializer
 from datetime import datetime, timezone, timedelta
 from rest_framework.pagination import PageNumberPagination
+from django.core.paginator import Paginator
+
 
 from accounts.models import UserAccount
 import functools
@@ -21,8 +23,9 @@ class ListingView(RetrieveAPIView):
     serializer_class = ListingDetailSerializer
     lookup_field = 'slug'
 
-class SearchView(APIView):
-    pagination_class = PageNumberPagination
+class SearchView(APIView,PageNumberPagination):
+    serializer_class = ListingSerializer
+
     def post(self, request, format=None):
         queryset = Listing.objects.order_by('-list_date').filter()
         data = self.request.data
@@ -39,7 +42,9 @@ class SearchView(APIView):
                     bedrooms = int(value.rstrip('+'))
                     queryset = queryset.filter(bedrooms__gte=bedrooms)
             elif field == 'home_type':
-                queryset = queryset.filter(home_type__iexact=value)
+                home_type = self.convert_home_type(value)
+                if home_type is not None:
+                    queryset = queryset.filter(home_type__iexact=value)
             elif field == 'bathrooms':
                 if value: 
                     bathrooms = (value.rstrip('+'))
@@ -59,7 +64,8 @@ class SearchView(APIView):
                     queryset = queryset.filter(property_age__lte=property_age)
 
             elif field == 'furniture_type':
-                if value:
+                furniture_type = self.convert_furniture_type(value)
+                if furniture_type is not None:
                     queryset = queryset.filter(furniture_type__iexact=value)
 
             elif field == 'open_house':
@@ -70,9 +76,14 @@ class SearchView(APIView):
                 if value:
                     queryset = queryset.filter(desc__icontains=value)
 
+        queryset2=self.paginate_queryset(queryset,request)
+        serializer = ListingSerializer(queryset2, many=True)
+        return self.get_paginated_response(serializer.data)
 
-        serializer = ListingSerializer(queryset, many=True)
-        return Response(serializer.data)
+   
+
+
+
 
     def convert_price_range(self, price_str):
         if price_str == 'Any':
@@ -102,6 +113,15 @@ class SearchView(APIView):
         if str(open_house_str).lower() in ['true', 'false']:
             return str(open_house_str).lower()
         else:
+            return None
+
+
+    def convert_furniture_type(self, furniture_type_str):
+        if furniture_type_str == 'Any':
+            return None
+
+    def convert_home_type(self, home_type_str):
+        if home_type_str == 'Any':
             return None
 
 
