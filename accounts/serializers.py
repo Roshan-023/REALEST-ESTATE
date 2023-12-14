@@ -5,16 +5,11 @@ from .models import *
 from rest_framework import serializers
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
-        refresh = self.get_token(self.user)  # Corrected line
-
-        data['refresh'] = str(refresh)
-        data['access'] = str(refresh.access_token)
-        data['user'] = self.user.email  # Use email or any other user attribute you want
-        data['email'] = self.user.email
-
-        return data
+   @classmethod
+   def get_token(cls, user):
+    token = super().get_token(user)
+    token['username'] = user.name
+    return token
 
 
 class RealtorSerializer(serializers.ModelSerializer):

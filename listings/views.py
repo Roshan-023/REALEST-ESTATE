@@ -5,6 +5,8 @@ from rest_framework import permissions, status
 from .models import Listing
 from .serializers import ListingSerializer, ListingDetailSerializer, AddListingSerializer
 from datetime import datetime, timezone, timedelta
+from rest_framework.pagination import PageNumberPagination
+
 from accounts.models import UserAccount
 import functools
 
@@ -20,10 +22,10 @@ class ListingView(RetrieveAPIView):
     lookup_field = 'slug'
 
 class SearchView(APIView):
+    pagination_class = PageNumberPagination
     def post(self, request, format=None):
-        queryset = Listing.objects.order_by('-list_date').filter(is_published=True)
+        queryset = Listing.objects.order_by('-list_date').filter()
         data = self.request.data
-        match_any = data.get("match_any", False)
 
         for field, value in data.items():
             if field == 'sale_type':
@@ -67,9 +69,7 @@ class SearchView(APIView):
             elif field == 'keywords':
                 if value:
                     queryset = queryset.filter(desc__icontains=value)
-        if match_any:
-            # If match_any is True, return results that meet at least one condition
-            queryset = Listing.objects.filter(Q(pk__in=queryset.values_list('pk')))
+
 
         serializer = ListingSerializer(queryset, many=True)
         return Response(serializer.data)
@@ -99,8 +99,8 @@ class SearchView(APIView):
             return None
 
     def convert_open_house(self, open_house_str):
-        if open_house_str.lower() in ['true', 'false']:
-            return open_house_str.lower()
+        if str(open_house_str).lower() in ['true', 'false']:
+            return str(open_house_str).lower()
         else:
             return None
 
