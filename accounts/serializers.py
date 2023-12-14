@@ -10,6 +10,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     token = self.get_token(self.user)
     data['user'] = str(self.user)
     data['id'] = str(self.user.id)
+    data['name'] = str(self.user.name)
     return data
 
 
