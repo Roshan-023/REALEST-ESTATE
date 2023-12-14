@@ -36,7 +36,7 @@ class SearchView(APIView,PageNumberPagination):
             elif field == 'price':
                 price = self.convert_price_range(value)
                 if price is not None:
-                    queryset = queryset.filter(price__gte=price)
+                    queryset = queryset.filter(price__lte=price)
             elif field == 'bedrooms':
                 if value:
                     bedrooms = int(value.rstrip('+'))
@@ -88,8 +88,8 @@ class SearchView(APIView,PageNumberPagination):
     def convert_price_range(self, price_str):
         if price_str == 'Any':
             return None
-        elif price_str.endswith('+'):
-            return int(price_str.replace('+', '').replace(',', ''))
+        elif price_str.endswith('-'):
+            return int(price_str.replace('-', '').replace(',', ''))
         else:
             return None
 
