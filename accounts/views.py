@@ -8,6 +8,7 @@ from django.utils.decorators import method_decorator
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import *
+from .models import Testimonial
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -61,3 +62,24 @@ class TopSellerView(ListAPIView):
     serializer_class = RealtorSerializer
     pagination_class = None
 
+class UserUpdateView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get_object(self):
+        return self.request.user
+
+    def patch(self, request, format=None):
+        user = self.get_object()
+        serializer = UserUpdateSerializer(user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TestimonialListView(ListAPIView):
+    permission_classes = (permissions.AllowAny, )
+    queryset = Testimonial.objects.all()
+    serializer_class = TestimonialListSerializer
+    pagination_class = None

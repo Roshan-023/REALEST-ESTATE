@@ -19,3 +19,26 @@ class RealtorSerializer(serializers.ModelSerializer):
         model = UserAccount
         exclude = ['groups', 'user_permissions']
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAccount
+        fields = ['email', 'name', 'photo', 'phone', 'description']
+
+
+        def update(self, instance, validated_data):
+            instance.email = validated_data.get('email', instance.email)
+            instance.name = validated_data.get('name', instance.name)
+            instance.photo = validated_data.get('photo', instance.photo)
+            instance.phone = validated_data.get('phone', instance.phone)
+            instance.description = validated_data.get('description', instance.description)
+            instance.save()
+            return instance
+
+class TestimonialListSerializer(serializers.ModelSerializer):
+    user_name = serializers.SerializerMethodField()
+    class Meta:
+        model = Testimonial
+        fields = ['user_name', 'content', 'testimonial_type', 'creation_time']
+    
+    def get_user_name(self, obj):
+        return obj.user.get_full_name()

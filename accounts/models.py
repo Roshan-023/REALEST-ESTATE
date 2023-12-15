@@ -47,3 +47,27 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+
+
+class Testimonial(models.Model):
+    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
+    content = models.TextField()
+    testimonial_type_choices = [
+        ('OWNER', 'Owner'),
+        ('Tenant', 'Tenant'),
+        ('Buyer', 'Buyer')
+    ]
+    testimonial_type = models.CharField(max_length=10, choices=testimonial_type_choices)
+    creation_time = models.DateTimeField(default=datetime.now)
+
+
+    def __str__(self):
+        return f"{self.user.name} - {self.creation_time}"
+
+    def save(self, *args, **kwargs):
+        # If user is not set, set it to the current user
+        if not self.user_id:
+            self.user = UserAccount.objects.get(pk=your_current_user_id)
+        super(Testimonial, self).save(*args, **kwargs)
