@@ -7,6 +7,8 @@ from .serializers import ListingSerializer, ListingDetailSerializer, AddListingS
 from datetime import datetime, timezone, timedelta
 from rest_framework.pagination import PageNumberPagination
 from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 
 from accounts.models import UserAccount
@@ -76,6 +78,10 @@ class SearchView(APIView,PageNumberPagination):
                 if value:
                     queryset = queryset.filter(desc__icontains=value)
 
+            elif field == 'state':
+                if value:
+                    queryset = queryset.filter(state__icontains=value)
+
         queryset2=self.paginate_queryset(queryset,request)
         serializer = ListingSerializer(queryset2, many=True)
         return self.get_paginated_response(serializer.data)
@@ -123,8 +129,9 @@ class SearchView(APIView,PageNumberPagination):
     def convert_home_type(self, home_type_str):
         if home_type_str == 'Any':
             return None
+        return home_type_str
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class AddListingAPIView(CreateAPIView):
     serializer_class = AddListingSerializer
     permission_classes = (permissions.IsAuthenticated, )

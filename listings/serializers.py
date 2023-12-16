@@ -6,11 +6,11 @@ class ListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Listing
         fields = '__all__'
-        def to_representation(self, instance):
-            data = super().to_representation(instance)
-            if not instance.should_show_tenant_type and 'tenant_type' in data:
-                del data['tenant_type']
-            return data
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if not instance.should_show_tenant_type and 'tenant_type' in data:
+            del data['tenant_type']
+        return data
 
 
 class ListingDetailSerializer(serializers.ModelSerializer):

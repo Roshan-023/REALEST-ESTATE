@@ -22,7 +22,7 @@ class RealtorSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAccount
-        fields = ['email', 'name', 'photo', 'phone', 'description']
+        fields = ['name', 'photo', 'phone', 'description']
 
 
         def update(self, instance, validated_data):
