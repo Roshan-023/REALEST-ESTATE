@@ -68,7 +68,7 @@ class Listing(models.Model):
 
     list_date = models.DateTimeField(default=now, blank=True)
     verified = models.BooleanField(default=False)
-    property_age = models.IntegerField(null=True, blank=True, validators=[MinValueValidator(limit_value=0)])
+    property_age = models.IntegerField(validators=[MinValueValidator(limit_value=0)])
 
     furniture_type = models.CharField(max_length=50, choices=FurnitureType.choices, default=FurnitureType.UNFURNISHED)
     tenant_type = models.CharField(null=True, blank=True, choices=TenantType.choices, default=None, max_length=50)

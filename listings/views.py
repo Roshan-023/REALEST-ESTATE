@@ -86,11 +86,6 @@ class SearchView(APIView,PageNumberPagination):
         serializer = ListingSerializer(queryset2, many=True)
         return self.get_paginated_response(serializer.data)
 
-   
-
-
-
-
     def convert_price_range(self, price_str):
         if price_str == 'Any':
             return None

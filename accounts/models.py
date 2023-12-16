@@ -33,6 +33,7 @@ class UserAccount(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     top_seller = models.BooleanField(default=False)
     date_hired = models.DateTimeField(default=datetime.now, blank=True)
+    email_optional = models.EmailField(max_length=255, blank = True)
 
     objects = UserAccountManager()
 
